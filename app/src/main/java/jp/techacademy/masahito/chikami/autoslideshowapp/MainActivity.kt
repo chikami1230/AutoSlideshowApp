@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Log
 import android.provider.MediaStore
 import android.content.ContentUris
+import android.database.Cursor
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -54,35 +55,78 @@ class MainActivity : AppCompatActivity(){
         }
     }
 
-    private fun getContentsInfo() {
-        // 画像の情報を取得する
+
+
+    var cursor: Cursor? = null
+
+    fun getContentsInfo() {
+        // 画像の情報を取得
         val resolver = contentResolver
-        val cursor = resolver.query(
+        cursor = resolver.query(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, // データの種類
             null, // 項目（null = 全項目）
             null, // フィルタ条件（null = フィルタなし）
             null, // フィルタ用パラメータ
             null // ソート (nullソートなし）
-            )
+        )
 
         if (cursor!!.moveToFirst()) {
-            do {
-                // indexからIDを取得し、そのIDから画像のURIを取得する
-                val fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID)
-                val id = cursor.getLong(fieldIndex)
-                val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+            // indexからIDを取得し、そのIDから画像のURIを取得する
+            var fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+            var id = cursor!!.getLong(fieldIndex)
+            var imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
 
-                Log.d("ANDROID", "URI : " + imageUri.toString())
+            Log.d("ANDROID", "URI : " + imageUri.toString())
 
-                imageView.setImageURI(imageUri)
+            imageView.setImageURI(imageUri)
 
-                button1.setOnClickListener{
+            button1.setOnClickListener {
+                if (cursor!!.moveToNext()) {
+                    cursor!!.moveToNext()
+                    fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                    id = cursor!!.getLong(fieldIndex)
+                    imageUri =
+                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                     imageView.setImageURI(imageUri)
-                    Log.d("LOG","テスト")
+                    Log.d("LOG", "test1")
+                } else {
+                    cursor!!.moveToFirst()
+                    fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                    id = cursor!!.getLong(fieldIndex)
+                    imageUri =
+                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                    imageView.setImageURI(imageUri)
+                    Log.d("LOG", "test2")
+                }
+            }
+
+            button2.setOnClickListener {
+                if (cursor!!.moveToPrevious()) {
+                    cursor!!.moveToPrevious()
+                    fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                    id = cursor!!.getLong(fieldIndex)
+                    imageUri =
+                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                    imageView.setImageURI(imageUri)
+                    Log.d("LOG", "test3")
+                } else {
+                    cursor!!.moveToLast()
+                    fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                    id = cursor!!.getLong(fieldIndex)
+                    imageUri =
+                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                    imageView.setImageURI(imageUri)
+                    Log.d("LOG", "test4")
                 }
 
-            } while (cursor.moveToNext())
+           }
+
         }
-        cursor.close()
+
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Android", "onDestroy")
+        cursor!!.close()
     }
 }
