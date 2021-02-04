@@ -89,7 +89,6 @@ class MainActivity : AppCompatActivity(){
 
             button1.setOnClickListener {
                 if (cursor!!.moveToNext()) {
-                    cursor!!.moveToNext()
                     fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
                     id = cursor!!.getLong(fieldIndex)
                     imageUri =
@@ -109,7 +108,6 @@ class MainActivity : AppCompatActivity(){
 
             button2.setOnClickListener {
                 if (cursor!!.moveToPrevious()) {
-                    cursor!!.moveToPrevious()
                     fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
                     id = cursor!!.getLong(fieldIndex)
                     imageUri =
@@ -137,7 +135,6 @@ class MainActivity : AppCompatActivity(){
                             mTimerSec += 2.0
                             mHandler.post {
                                 if (cursor!!.moveToNext()) {
-                                    cursor!!.moveToNext()
                                     fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
                                     id = cursor!!.getLong(fieldIndex)
                                     imageUri =
