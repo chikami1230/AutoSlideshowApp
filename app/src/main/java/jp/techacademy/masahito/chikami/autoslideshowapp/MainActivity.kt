@@ -9,12 +9,21 @@ import android.util.Log
 import android.provider.MediaStore
 import android.content.ContentUris
 import android.database.Cursor
+import android.os.Handler
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class MainActivity : AppCompatActivity(){
 
     private val PERMISSIONS_REQUEST_CODE = 100
+
+    private var mTimer: Timer? = null
+
+    // タイマー用の時間のための変数
+    private var mTimerSec = 0.0
+
+    private var mHandler = Handler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,8 +63,6 @@ class MainActivity : AppCompatActivity(){
                 }
         }
     }
-
-
 
     var cursor: Cursor? = null
 
@@ -118,12 +125,55 @@ class MainActivity : AppCompatActivity(){
                     imageView.setImageURI(imageUri)
                     Log.d("LOG", "test4")
                 }
+            }
 
-           }
+            button3.setOnClickListener {
+                Log.d("LOG", "test5")
 
+                if (mTimer == null){
+                    mTimer = Timer()
+                    mTimer!!.schedule(object : TimerTask() {
+                        override fun run() {
+                            mTimerSec += 2.0
+                            mHandler.post {
+                                if (cursor!!.moveToNext()) {
+                                    cursor!!.moveToNext()
+                                    fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                                    id = cursor!!.getLong(fieldIndex)
+                                    imageUri =
+                                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                                    imageView.setImageURI(imageUri)
+                                    Log.d("LOG", "test6")
+                                    button1.setEnabled(false)
+                                    button2.setEnabled(false)
+                                    button3.setText("停止")
+                                } else {
+                                    cursor!!.moveToFirst()
+                                    fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                                    id = cursor!!.getLong(fieldIndex)
+                                    imageUri =
+                                        ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                                    imageView.setImageURI(imageUri)
+                                    Log.d("LOG", "test7")
+                                    button1.setEnabled(false)
+                                    button2.setEnabled(false)
+                                    button3.setText("停止")
+                                }
+                            }
+                        }
+                    }, 2000, 2000) // 最初に始動させるまで2000ミリ秒、ループの間隔を2000ミリ秒 に設定
+
+                }else{
+                    mTimer!!.cancel()
+                    mTimer = null
+                    button1.setEnabled(true)
+                    button2.setEnabled(true)
+                    button3.setText("再生")
+                }
+            }
         }
-
     }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d("Android", "onDestroy")
